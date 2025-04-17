@@ -50,26 +50,30 @@ export class PDFBlockRenderer extends MarkdownRenderChild {
 
 		const pos = hook.getBoundingClientRect().bottom;
 
-		if (pos != 0 && pos <= window.innerHeight) {
-			this.render();
-		}
-		else {
-			const delay = window.setInterval(
-				() => {
-					clearInterval(delay);
-					this.render();
-				},
-				(this.params.page[0] % 15 + 1) * 5000
-			)
-
-			const renderCallBack = function () {
-				if (hook.getBoundingClientRect().bottom != 0) {
-					clearInterval(delay);
-					this.render();
-				}
+		if (this.settings.lazy_load) {
+			if (pos != 0 && pos <= window.innerHeight) {
+				this.render();
 			}
-			document.addEventListener("wheel", renderCallBack.bind(this));
-			document.addEventListener("touchmove",  renderCallBack.bind(this));
+			else {
+				const delay = window.setInterval(
+					() => {
+						clearInterval(delay);
+						this.render();
+					},
+					(this.params.page[0] % 15 + 1) * 5000
+				)
+	
+				const renderCallBack = function () {
+					if (hook.getBoundingClientRect().bottom != 0) {
+						clearInterval(delay);
+						this.render();
+					}
+				}
+				document.addEventListener("wheel", renderCallBack.bind(this));
+				document.addEventListener("touchmove",  renderCallBack.bind(this));
+			}
+		} else {
+			this.render();
 		}
 	}
 
