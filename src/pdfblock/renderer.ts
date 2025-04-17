@@ -9,6 +9,7 @@ export class PDFBlockRenderer extends MarkdownRenderChild {
 	sourcePath: string
 	settings: SlideNoteSettings
 	cache: FileCache
+	pdfdocument: any
 	public constructor(
 		el: HTMLElement,
 		params: PDFBlockParameters,
@@ -34,6 +35,11 @@ export class PDFBlockRenderer extends MarkdownRenderChild {
 				}
 			})
 		)
+		
+	}
+
+	onunload(){
+		this.pdfdocument.destroy();
 	}
 
 	async init() {
@@ -73,18 +79,18 @@ export class PDFBlockRenderer extends MarkdownRenderChild {
 			try {
 				const buffer = await this.cache.get(this.params.file);
 				const pdfjs = await loadPdfJs();
-				const pdfdocument = await pdfjs.getDocument(buffer).promise;
+				this.pdfdocument = await pdfjs.getDocument(buffer).promise;
 
 				if (this.params.page.includes(0)) {
 					this.params.page = Array.from(
-						{length: pdfdocument.numPages},
+						{length: this.pdfdocument.numPages},
 						(_, i) => i + 1
 					);
 				}
 
 				for (const pageNumber of this.params.page) {
 
-					const page = await pdfdocument.getPage(pageNumber);
+					const page = await this.pdfdocument.getPage(pageNumber);
 					const host = this.el.createEl("div");
 					host.addClass("slide-note-pdfblock");
 					host.style.position = "relative";
