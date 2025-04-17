@@ -39,7 +39,7 @@ export class PDFBlockRenderer extends MarkdownRenderChild {
 	}
 
 	onunload(){
-		this.pdfdocument.destroy();
+		this.pdfdocument?.destroy();
 	}
 
 	async init() {
